@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>ArgueSecure by danionita</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>ArgueSecure</h1>
+        <p>Argumentation-based Risk Assessment tool</p>
+        <p class="view"><a href="https://github.com/danionita/ArgueSecure">View the Project on GitHub <small>danionita/ArgueSecure</small></a></p>
+        <ul>
+          <li><a href="https://github.com/danionita/ArgueSecure/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/danionita/ArgueSecure/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/danionita/ArgueSecure">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="arguesecure" class="anchor" href="#arguesecure" aria-hidden="true"><span class="octicon octicon-link"></span></a>ArgueSecure</h1>
+
+<p>Argumentation-based Risk Assessment tool based on previous research by Ionita et al: <a href="http://eprints.eemcs.utwente.nl/25041/01/Argumentations-support_for_Security_Requirements.pdf">http://eprints.eemcs.utwente.nl/25041/01/Argumentations-support_for_Security_Requirements.pdf</a></p>
+
+<blockquote>
+<p>A tool which supports documenting the structured arguments and defeasibility relationships elicited as part of an informal argumentation game. In addition it recursively computes argument states and tags arguments with the components or assets they refer to.</p>
+</blockquote>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>USAGE:</h2>
+
+<p>Conducting an argument-based RA requires little preparation. Any number of stakeholders, domain experts and/or security experts can participate, but should be split up in two teams: Attackers and Defenders. The method assumes the participants posses pre-existing knowledge of the Target of Assessment. Ideally, but not mandatory, some sort of system model or diagram should be agreed upon by the participants. Each assessment follows the workflow below:</p>
+
+<ol>
+<li> Create New Risk and provide a brief name/description of it</li>
+<li> Each Risk starts with an Attacker argument, describing an attack path or refining the risk description above.Each argument consists of a Claim, supported by one or more assumptions. Use CTRL+SPACE to switch between Claims and Assumptions.</li>
+<li> Each Attacker argument may be counter-acted by a Defender argument, describing a mitigation, reduction or transfer of the previously described attack. In case the argument describes a Risk Transfer, the "Transfer"  checkbox should be ticked.</li>
+<li> This back-and-forth rhetoric can continue until:
+
+<ul>
+<li>The Attacker team is unable or unwilling to counter-act the last Defender argument. This means the Risk has been eliminated.</li>
+<li>The Defender team is unable or unwilling to counter-act the last Attacker argument. This means the (residual) Risk has been accepted.</li>
+</ul>
+</li>
+<li> If other Risks  can be identified, go back to step 1.</li>
+</ol>
+
+<h3>
+<a id="tips--tricks" class="anchor" href="#tips--tricks" aria-hidden="true"><span class="octicon octicon-link"></span></a>Tips &amp; Tricks:</h3>
+
+<ul>
+<li>When to start a New Risk:
+
+<ul>
+<li>As soon as a new attack vector is identified (even if this attack vector untuitively corresponds to the same Risk and/or compromises the same asset), it is recommended to specify it as part of a New Risk to prevent long rounds.</li>
+</ul>
+</li>
+<li>Contents of Attacker arguments:
+
+<ul>
+<li>Claims are attacks that are possible. </li>
+<li>If everybody agrees, no assumptions are needed. If anyone believes it’s impossible, he has to explain why (in which circumstances). </li>
+<li>The negations of these reasons are assumptions.</li>
+</ul>
+</li>
+<li>Contents of Defender arguments: 
+
+<ul>
+<li>Claims are (parts of) attacks which are impossible. </li>
+<li>If everybody agrees, no assumptions are needed. If anyone believes it’s still possible, he has to explain why (in which circumstances).<br>
+</li>
+<li>The negations of these reasons are assumptions.</li>
+</ul>
+</li>
+</ul>
+
+<h2>
+<a id="development-plan" class="anchor" href="#development-plan" aria-hidden="true"><span class="octicon octicon-link"></span></a>DEVELOPMENT PLAN</h2>
+
+<p>This is a first version, still missing some functionality. In the near future, we plan to add:</p>
+
+<ul>
+<li>extended keyword/search  functionality aimed at searching for and highlighting arguments that pertain to the same components/assets.</li>
+<li>various report generation options, such as a Risk Map, a list of Countermeasures to be implemented and a list of important components.</li>
+</ul>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/danionita">danionita</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
