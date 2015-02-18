@@ -1,6 +1,0 @@
-Light vsd TREsPASS version - keyword functionaluity is crucial for TREsPASS version to allow integration
-Look into AD trees for how to treat countermeasures that mitigate more than 1 attack
-NAmes:
-- ArgueSecure
-License:
-- Ask Miguel (GPL looks ok)
