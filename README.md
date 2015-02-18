@@ -28,6 +28,6 @@ Conducting an argument-based RA requires little preparation. Any number of stake
 
 
 ## DEVELOPMENT PLAN
-This is a first version, still missing some functionality so please don't remove the old spreadsheets. In the near future, we plan to add:
+This is a first version, still missing some functionality. In the near future, we plan to add:
 - extended keyword/search  functionality aimed at searching for and highlighting arguments that pertain to the same components/assets.
 - various report generation options, such as a Risk Map, a list of Countermeasures to be implemented and a list of important components, which could serve as input for a TREsPASS model.
