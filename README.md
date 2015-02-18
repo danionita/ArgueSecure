@@ -1,5 +1,6 @@
 # ArgueSecure
-Argumentation-based Risk Assessment tool.
+Argumentation-based Risk Assessment tool based on previous research by Ionita et al: http://eprints.eemcs.utwente.nl/25041/01/Argumentations-support_for_Security_Requirements.pdf
+
 A tool which supports documenting the structured arguments and defeasibility relationships elicited as part of an informal argumentation game. In addition it recursively computes argument states and tags arguments with the components or assets they refer to.
 
 
