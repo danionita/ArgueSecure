@@ -21,7 +21,7 @@ Conducting an argument-based RA requires little preparation. Any number of stake
   - Claims are attacks that are possible. 
   - If everybody agrees, no assumptions are needed. If anyone believes it’s impossible, he has to explain why (in which circumstances). 
   - The negations of these reasons are assumptions.
--Contents of Defender arguments: 
+- Contents of Defender arguments: 
   - Claims are (parts of) attacks which are impossible. 
   - If everybody agrees, no assumptions are needed. If anyone believes it’s still possible, he has to explain why (in which circumstances).  
   - The negations of these reasons are assumptions.
