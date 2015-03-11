@@ -40,7 +40,7 @@ public class Category extends Element{
 	}
 	
 	public String toString(){
-		String result = "<html>" + View.FORMAT + "Category: " + super.getUserObject().toString();		
+		String result = "<html>" + View.CATEGORY_FORMAT + "CATEGORY: " + super.getUserObject().toString().toUpperCase();		
 		return result;
 	}		
 }

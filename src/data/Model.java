@@ -39,7 +39,7 @@ public class Model {
 	public void setAssessment(DefaultMutableTreeNode root){
 		assessmentRoot = root;
 		try{
-			Risk lastRisk = (Risk)root.getLastChild();
+			Risk lastRisk = (Risk)root.getLastChild().getChildAt(root.getLastChild().getChildCount());
 			currentRisk = lastRisk;
 		}catch(NoSuchElementException e){
 			System.out.println("This assessment contained no risks...");

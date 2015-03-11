@@ -28,6 +28,11 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import data.*;
+import java.io.PrintStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.tree.TreeModel;
+import org.apache.commons.io.FilenameUtils;
 
 public class View {
 
@@ -38,22 +43,32 @@ public class View {
     private boolean claim;
     private DefaultMutableTreeNode revision;
     private JLabel claimCounter;
-    private JLabel inputDescription;
+    private JLabel inputDescription1;
+    private JLabel inputDescription2;
     private JToggleButton transfer_risk;
-    private JButton new_risk;
     private JToggleButton toggle_implemented;
-
+    private JButton new_risk;
     private JTextArea inputClaim;
     private JScrollPane inputPane;
     public JScrollPane argTreePane;
 
     public static int LINE_WIDTH = 600;
-    public static int FONT_SIZE = 22;
+    public static int FONT_SIZE = 22;    
+    public static int LARGE_FONT_SIZE = 26;
     public static String FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + FONT_SIZE + "pt;'>";
+    public static String CATEGORY_FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + LARGE_FONT_SIZE + "pt;'>";
+    public static String RISK_FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + LARGE_FONT_SIZE+ "pt;'>";
+
 
     private JTree argTree;
     private JFrame topFrame;
     private JPanel topPanel;
+    private JPanel choicePanel;
+    JRadioButton reportChoiceButton1;
+    JRadioButton reportChoiceButton2;
+    JRadioButton reportChoiceButton3;
+
+    private ButtonGroup reportChoiceButton;
     //used to track removed rounds
     private int remPosition;
     private int remPositionC;
@@ -63,12 +78,17 @@ public class View {
     //used to store loaded images
     private HashMap<String, Image> resources;
 
-    private static final String CLAIM = "New CLAIM: (Press Control + Space to switch)";
+    private static final String CLAIM = "New CLAIM:";
+    private static final String BLANK = "";
+    private static final String SWITCH_ASSUMPTION = "(Press Control + Space to switch to ASSUMPTION)";
+    private static final String SWITCH_CLAIM = "(Press Control + Space to switch to CLAIM)";
+    private static final String CANCEL_REVISION = "(Press ESC to cancel)";
     private static final String DEFENCE = "New DEFENCE: (Press Control + Space to switch to assmptions)";
     private static final String ATTACK = "New ATTACK: (Press Control + Space to switch to assmptions)";
-    private static final String ASSUMPTION = "New ASSUMPTION: (Press Control + Space to add a new attack/defence)";
-    private static final String REVISION = "Currently revising a statement, press ESC to cancel.";
+    private static final String ASSUMPTION = "New ASSUMPTION:";
+    private static final String REVISION = "Revising:";
     private static final Dimension BUTTON_SIZE = new Dimension(120, 60);
+    private static final Dimension WIDE_BUTTON_SIZE = new Dimension(240, 60);
 
     //used to reconfigure the newline/subminput behaviour of the input box
     private static final String TEXT_SUBMIT = "text-submit";
@@ -91,7 +111,7 @@ public class View {
 
         // get the screen size as a java dimension
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
- // get 2/3 of the height, and 2/3 of the width
+        // get 2/3 of the height, and 2/3 of the width
         int screenHeight = screenSize.height * 2 / 3;
         int screenWidth = screenSize.width * 2 / 3;
 // set the jframe height and width
@@ -128,6 +148,7 @@ public class View {
         JButton edit = new JButton("Revise", new ImageIcon(resources.get("edit")));
         edit.setVerticalTextPosition(SwingConstants.BOTTOM);
         edit.setHorizontalTextPosition(SwingConstants.CENTER);
+
         JButton revisit = new JButton("<html><u>R</u>evisit<html>", new ImageIcon(resources.get("revisit")));
         revisit.setVerticalTextPosition(SwingConstants.BOTTOM);
         revisit.setHorizontalTextPosition(SwingConstants.CENTER);
@@ -149,6 +170,10 @@ public class View {
         new_category.setVerticalTextPosition(SwingConstants.BOTTOM);
         new_category.setHorizontalTextPosition(SwingConstants.CENTER);
 
+        JButton generate_report = new JButton("<html><u>G</u>enerate Report</html>", new ImageIcon(resources.get("report")));
+        new_category.setVerticalTextPosition(SwingConstants.BOTTOM);
+        new_category.setHorizontalTextPosition(SwingConstants.CENTER);
+
         toggle_implemented = new JToggleButton("<html>Im<u>p</u>lemented</html>", new ImageIcon(resources.get("implemented")));
         toggle_implemented.setEnabled(false);
 
@@ -162,7 +187,7 @@ public class View {
         redo.setPreferredSize(BUTTON_SIZE);
         edit.setPreferredSize(BUTTON_SIZE);
         revisit.setPreferredSize(BUTTON_SIZE);
-
+        generate_report.setPreferredSize(WIDE_BUTTON_SIZE);
         load_assessment.setPreferredSize(BUTTON_SIZE);
         save_assessment.setPreferredSize(BUTTON_SIZE);
 
@@ -184,22 +209,26 @@ public class View {
         buttonPanel.add(new_category, gbc);
         gbc.gridx = 1;
         buttonPanel.add(new_risk, gbc);
-
         gbc.gridwidth = 2;
         gbc.gridx = 0;
         gbc.gridy = 4;
+        buttonPanel.add(generate_report, gbc);
+
+        gbc.gridwidth = 2;
+        gbc.gridx = 0;
+        gbc.gridy = 5;
         gbc.weighty = 100;
         JLabel filler = new JLabel("");
         buttonPanel.add(filler, gbc);
 
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
-        gbc.gridy = 5;
+        gbc.gridy = 6;
 
         buttonPanel.add(toggle_implemented, gbc);
         buttonPanel.add(transfer_risk, gbc);
 
-        gbc.gridy = 5;
+        gbc.gridy = 6;
         gbc.weighty = 1;
         gbc.gridx = 0;
         gbc.anchor = GridBagConstraints.LINE_START;
@@ -269,14 +298,17 @@ public class View {
         JPanel inputPanel = new JPanel();
 
         inputPanel.setLayout(new GridBagLayout());
-        inputDescription = new JLabel(CLAIM);
-        inputDescription.setFont(inputDescription.getFont().deriveFont((float)FONT_SIZE));
+        inputDescription1 = new JLabel(BLANK);
+        inputDescription1.setFont(inputDescription1.getFont().deriveFont((float) FONT_SIZE));
+        inputDescription2 = new JLabel(BLANK);
+        inputDescription2.setFont(inputDescription2.getFont().deriveFont((float) FONT_SIZE / 2));
         claimCounter = new JLabel("C1:");
         inputClaim = new JTextArea("", 2, 50);
         inputClaim.setLineWrap(true);
         inputClaim.setWrapStyleWord(true);
         inputClaim.setEnabled(false);
-        inputClaim.setFont(inputDescription.getFont().deriveFont((float)FONT_SIZE));
+        inputClaim.setBackground(Color.lightGray);
+        inputClaim.setFont(inputClaim.getFont().deriveFont((float) FONT_SIZE));
         InputMap input = inputClaim.getInputMap();
         KeyStroke enter = KeyStroke.getKeyStroke("ENTER");
         KeyStroke shiftEnter = KeyStroke.getKeyStroke("shift ENTER");
@@ -292,12 +324,14 @@ public class View {
         gbc.weighty = 1;
         //gbc.anchor = GridBagConstraints.LINE_START;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        inputPanel.add(inputDescription, gbc);
+        inputPanel.add(inputDescription1, gbc);
 
         gbc.gridwidth = 1;
         gbc.gridy = 1;
-        //inputPanel.add(claimCounter, gbc);
         gbc.gridx = 1;
+        inputPanel.add(inputDescription2, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 2;
         gbc.weightx = 120;
         inputPanel.add(inputPane, gbc);
 
@@ -322,6 +356,19 @@ public class View {
         topPanel.add(buttonPanel, gbc);
 
         contentPane.add(topPanel);
+
+        //-------------REPORT TYPE CHOICE PANEL----------//
+        choicePanel = new JPanel(new GridLayout(3, 5));
+        reportChoiceButton = new ButtonGroup();
+        reportChoiceButton1 = new JRadioButton("Countermeasures");
+        reportChoiceButton.add(reportChoiceButton1);
+        reportChoiceButton2 = new JRadioButton("Unmitigated risks");
+        reportChoiceButton.add(reportChoiceButton2);
+        reportChoiceButton3 = new JRadioButton("Risk Landscape");
+        reportChoiceButton.add(reportChoiceButton3);
+        choicePanel.add(reportChoiceButton1);
+        choicePanel.add(reportChoiceButton2);
+        choicePanel.add(reportChoiceButton3);
 
         //---------------------------------------//
         //------------ACTION LISTENERS-----------//
@@ -363,7 +410,9 @@ public class View {
                 FileNameExtensionFilter xmlFilter = new FileNameExtensionFilter("xml files (*.xml)", "xml");
                 fc.setFileFilter(xmlFilter);
                 fc.showSaveDialog(topFrame);
-                File f = new File(fc.getSelectedFile().toString() + ".xml");
+                System.out.println(fc.getSelectedFile().toString());
+                String fileNameWithOutExt = FilenameUtils.removeExtension(fc.getSelectedFile().toString());
+                File f = new File(fileNameWithOutExt + ".xml");
                 saveAssessment(f);
             }
         });
@@ -389,6 +438,27 @@ public class View {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
                 argTree.setSelectionPath(path);
                 revise(node);
+            }
+        });
+
+        generate_report.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int n = JOptionPane.showOptionDialog(topPanel, choicePanel,
+                        "Choose report type", JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.QUESTION_MESSAGE, null, null, null);
+                if (n == JOptionPane.YES_OPTION) {
+                    if (reportChoiceButton1.isSelected()) {
+                        JOptionPane.showMessageDialog(choicePanel,
+                                "This type of report is not yet implemented");
+                    }
+                    if (reportChoiceButton2.isSelected()) {
+                        JOptionPane.showMessageDialog(choicePanel,
+                                "This type of report is not yet implemented");
+                    }
+                    if (reportChoiceButton3.isSelected()) {
+                        printRiskLandscape();
+                    }
+                }
             }
         });
 
@@ -650,15 +720,20 @@ public class View {
 
         String result = (claim) ? "C" + c + ":" : "A" + (c - 1) + "." + a + ":";
         claimCounter.setText(result);
-        inputDescription.setText(ASSUMPTION);
-        if (claim) {
-            inputDescription.setText(CLAIM);
-        }
-
         if (mod.getRisk() == null) {
             inputClaim.setEnabled(false);
+            inputClaim.setBackground(Color.lightGray);
+            inputDescription1.setText(BLANK);
+            inputDescription2.setText(BLANK);
         } else {
             inputClaim.setEnabled(true);
+            inputDescription1.setText(ASSUMPTION);
+            inputDescription2.setText(SWITCH_CLAIM);
+            if (claim) {
+                inputDescription1.setText(CLAIM);
+                inputDescription2.setText(SWITCH_ASSUMPTION);
+            }
+            inputClaim.setBackground(Color.white);
         }
         new_risk.setEnabled(mod.getAssessment().getChildCount() > 0);
         //topFrame.pack();
@@ -704,7 +779,8 @@ public class View {
         }
         revision = e;
         inputClaim.setBackground(new Color(235, 231, 176));
-        inputDescription.setText(REVISION);
+        inputDescription1.setText(REVISION);
+        inputDescription2.setText(CANCEL_REVISION);
         inputClaim.setText(revision.getUserObject().toString());
         claimCounter.setText("REV:");
         inputClaim.grabFocus();
@@ -844,6 +920,32 @@ public class View {
 
     }
 
+    private void printRiskLandscape() {
+        TreeModel model = argTree.getModel();
+        JFileChooser fc = new JFileChooser();
+        FileNameExtensionFilter htmlFilter = new FileNameExtensionFilter("html files (*.html)", "html");
+        fc.setFileFilter(htmlFilter);
+        fc.showSaveDialog(topFrame);
+        System.out.println(fc.getSelectedFile().toString());
+        String fileNameWithOutExt = FilenameUtils.removeExtension(fc.getSelectedFile().toString());
+        PrintStream out;
+        String toPrint = getTreeText(model, model.getRoot(), "&nbsp");
+        try {
+            out = new PrintStream(fileNameWithOutExt);
+            out.println(toPrint);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private static String getTreeText(TreeModel model, Object object, String indent) {
+        String myRow = indent + object + "<br>";
+        for (int i = 0; i < model.getChildCount(object); i++) {
+            myRow += getTreeText(model, model.getChild(object, i), indent + "&nbsp&nbsp");
+        }
+        return myRow;
+    }
+
     private void impToggle() {
         DefaultMutableTreeNode n = (DefaultMutableTreeNode) argTree.getLastSelectedPathComponent();
         if (!(n instanceof Claim)) {
@@ -896,7 +998,8 @@ public class View {
             resources.put("transfer", ImageIO.read(input));
             input = classLoader.getResource("resources/category_icon.png");
             resources.put("category", ImageIO.read(input));
-
+            input = classLoader.getResource("resources/report_icon.png");
+            resources.put("report", ImageIO.read(input));
             input = classLoader.getResource("resources/implemented_icon.png");
             resources.put("implemented", ImageIO.read(input));
 
@@ -1045,8 +1148,11 @@ public class View {
                 FileNameExtensionFilter xmlFilter = new FileNameExtensionFilter("xml files (*.xml)", "xml");
                 fc.setFileFilter(xmlFilter);
                 fc.showSaveDialog(topFrame);
-                File f = new File(fc.getSelectedFile().toString() + ".xml");
-                saveAssessment(f);
+                if (fc.getSelectedFile() != null);
+                {
+                    File f = new File(fc.getSelectedFile().toString() + ".xml");
+                    saveAssessment(f);
+                }
             }
         };
         inp.put(key, desc);
@@ -1110,10 +1216,14 @@ public class View {
             @Override
             public void actionPerformed(ActionEvent e) {
                 FONT_SIZE = FONT_SIZE + 2;
-                System.out.println("Font size is now: " + FONT_SIZE);
+                LARGE_FONT_SIZE =LARGE_FONT_SIZE+2;
+                System.out.println("Font size is now: " + FONT_SIZE + "/"+ LARGE_FONT_SIZE);            
                 FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + FONT_SIZE + "pt;'>";
-                inputDescription.setFont(inputDescription.getFont().deriveFont(Math.min((float)24, (float)FONT_SIZE)));
-                inputClaim.setFont(inputDescription.getFont().deriveFont(Math.min((float)24, (float)FONT_SIZE)));
+                RISK_FORMAT= "<body style='width: " + LINE_WIDTH + "px;font-size: " + LARGE_FONT_SIZE + "pt;'>";                
+                CATEGORY_FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + LARGE_FONT_SIZE + "pt;'>";
+                inputDescription1.setFont(inputDescription1.getFont().deriveFont(Math.min((float) 24, (float) FONT_SIZE)));
+                inputDescription2.setFont(inputDescription2.getFont().deriveFont(Math.min((float) 12, (float) FONT_SIZE / 2)));
+                inputClaim.setFont(inputClaim.getFont().deriveFont(Math.min((float) 24, (float) FONT_SIZE)));
                 argTree.repaint();
                 ((DefaultTreeModel) argTree.getModel()).reload((DefaultMutableTreeNode) argTree.getModel().getRoot());
 
@@ -1127,14 +1237,17 @@ public class View {
         action = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                FONT_SIZE = FONT_SIZE - 2;
+                FONT_SIZE = FONT_SIZE - 2;                
+                LARGE_FONT_SIZE =LARGE_FONT_SIZE-3;
                 System.out.println("Font size is now: " + FONT_SIZE);
                 FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + FONT_SIZE + "pt;'>";
-                inputDescription.setFont(inputDescription.getFont().deriveFont(Math.min((float)24, (float)FONT_SIZE)));
-                inputClaim.setFont(inputDescription.getFont().deriveFont(Math.min((float)24, (float)FONT_SIZE)));
+                RISK_FORMAT= "<body style='width: " + LINE_WIDTH + "px;font-size: " + LARGE_FONT_SIZE + "pt;'>";                
+                CATEGORY_FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + LARGE_FONT_SIZE + "pt;'>";
+                inputDescription1.setFont(inputDescription1.getFont().deriveFont(Math.min((float) 24, (float) FONT_SIZE)));
+                inputDescription2.setFont(inputDescription2.getFont().deriveFont(Math.min((float) 24 / 2, (float) FONT_SIZE / 2)));
+                inputClaim.setFont(inputClaim.getFont().deriveFont(Math.min((float) 24, (float) FONT_SIZE)));
                 argTree.repaint();
                 ((DefaultTreeModel) argTree.getModel()).reload((DefaultMutableTreeNode) argTree.getModel().getRoot());
-                
 
             }
         };

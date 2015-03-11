@@ -18,7 +18,12 @@ public class Risk extends Element{
 	
 	@Override
 	public int getNr() {
-		return getParent().getIndex(this) + 1;
+                int nr=getParent().getIndex(this) + 1;
+                int categoriesBefore =getParent().getParent().getIndex(getParent());
+                for(int i=0;i<categoriesBefore;i++ ){
+                    nr+=getRoot().getChildAt(i).getChildCount();
+                }
+		return nr;
 	}
 	
 	public void setDesc(String desc){
@@ -31,7 +36,7 @@ public class Risk extends Element{
 	
 	public String toString(){
 		String desc = "R" + getNr() + ": ";
-		if (isActive()) desc = "<html>" + View.FORMAT +"<b>"+desc+"</b>" + super.getUserObject() + "</html>";
+		if (isActive()) desc = "<html>" + View.RISK_FORMAT +"<b>"+desc+"</b>" + super.getUserObject() + "</html>";
 		else desc = desc + super.getUserObject();
 		return desc;
 	}
