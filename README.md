@@ -32,6 +32,10 @@ The preferred process to use the tool is as follows:
   6.	If other Risks can be identified under this Cetegory, go back to step 2 and create a new Risk.
   7.	I a new Risk Category can be identified, go back to step 1.
 
+### Color codes ###
+Each Defender or Attacker argument is automatically highlighted in either green or red. Green arguments have not beet defeated yet or their counter-argument itself has been subsequently defeated. Red arguments have been defeated by an undefeated arguement. This defeasability relationship is recurive for each Risk.
+Implemented Defender arguments are colored blue.
+
 ### Tips & Tricks:
 - When to start a New Risk:
   - As soon as a new attack vector is identified (even if this attack vector untuitively corresponds to the same Risk and/or compromises the same asset), it is recommended to specify it as part of a New Risk to prevent long rounds.
