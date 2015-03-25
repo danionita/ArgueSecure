@@ -2,14 +2,14 @@
 
 ArgueSecure allows you to build and maintain a list of risks with the following structure
 - Category: \<A category of risks>
-  - R1: <a risk>
-    - (sword) C1: <Claim made by an attacker about the existence of an attack path>
-      - A A1.1: <An assumption of the claim>
-      - A A1.2: <Another assumption of the claim>
-    -(shield) C2: <Claim made by a defender,that partly or completely defeats the attacker’s claim by pointing out that an attacker’s assumption is probasbly, or certainly, false>
-      - A  A2.1: <An Assumption of the defender’s claim, e.g. about a mitigation that alresdy exists or thst will be implemented.>
-   - (sword) C3: <Renewed claim of the attacker that bypasses the defender’s argument>
-      - A A2.1: <An assumption of this renewed claim>
+  - R1: \<a risk>
+    - (sword) C1: \<Claim made by an attacker about the existence of an attack path>
+      - A A1.1: \<An assumption of the claim>
+      - A A1.2: \<Another assumption of the claim>
+    -(shield) C2: \<Claim made by a defender,that partly or completely defeats the attacker’s claim by pointing out that an attacker’s assumption is probasbly, or certainly, false>
+      - A  A2.1: \<An Assumption of the defender’s claim, e.g. about a mitigation that alresdy exists or thst will be implemented.>
+   - (sword) C3: \<Renewed claim of the attacker that bypasses the defender’s argument>
+      - A A2.1: \<An assumption of this renewed claim>
    - Etc.
   - R2: etc.
 - Category: etc.
