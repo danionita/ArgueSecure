@@ -31,6 +31,7 @@ import data.*;
 import java.io.PrintStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.TreeModel;
 import org.apache.commons.io.FilenameUtils;
 
@@ -42,7 +43,7 @@ public class View {
     //used to indicate whether the next input is a claim or an assumption
     private boolean claim;
     private DefaultMutableTreeNode revision;
-    private JLabel claimCounter;
+    private File lastDirectory;
     private JLabel inputDescription1;
     private JLabel inputDescription2;
     private JToggleButton transfer_risk;
@@ -53,12 +54,18 @@ public class View {
     public JScrollPane argTreePane;
 
     public static int LINE_WIDTH = 600;
-    public static int FONT_SIZE = 22;    
+    public static int FONT_SIZE = 22;
     public static int LARGE_FONT_SIZE = 26;
+    
     public static String FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + FONT_SIZE + "pt;'>";
     public static String CATEGORY_FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + LARGE_FONT_SIZE + "pt;'>";
-    public static String RISK_FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + LARGE_FONT_SIZE+ "pt;'>";
-
+    public static String RISK_FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + LARGE_FONT_SIZE + "pt;'>";
+    
+    public static String OUTPUT_ASSUMPTION_FORMAT = "<div style='word-wrap: break-all;margin-left: 100px;font-size: " + FONT_SIZE/2 + "pt;'>";
+    public static String OUTPUT_CATEGORY_FORMAT = "<div style='word-wrap: break-all;font-size: " + LARGE_FONT_SIZE/2 + "pt;'>";
+    public static String OUTPUT_RISK_FORMAT = "<div style='word-wrap: break-all;margin-left: 50px;font-size: " + LARGE_FONT_SIZE/2 + "pt;'>";    
+    public static String OUTPUT_CLAIM_FORMAT = "<div style='word-wrap: break-all;margin-left: 75px;font-size: " + LARGE_FONT_SIZE/2 + "pt;'>";
+    
 
     private JTree argTree;
     private JFrame topFrame;
@@ -82,7 +89,7 @@ public class View {
     private static final String BLANK = "";
     private static final String SWITCH_ASSUMPTION = "(Press Control + Space to switch to ASSUMPTION)";
     private static final String SWITCH_CLAIM = "(Press Control + Space to switch to CLAIM)";
-    private static final String CANCEL_REVISION = "(Press ESC to cancel)";
+    private static final String CANCEL_REVISION = "(Press ESC to cancel / Press ENTER to confirm))";
     private static final String DEFENCE = "New DEFENCE: (Press Control + Space to switch to assmptions)";
     private static final String ATTACK = "New ATTACK: (Press Control + Space to switch to assmptions)";
     private static final String ASSUMPTION = "New ASSUMPTION:";
@@ -145,7 +152,7 @@ public class View {
         redo.setVerticalTextPosition(SwingConstants.BOTTOM);
         redo.setHorizontalTextPosition(SwingConstants.CENTER);
 
-        JButton edit = new JButton("Revise", new ImageIcon(resources.get("edit")));
+        JButton edit = new JButton("Edit", new ImageIcon(resources.get("edit")));
         edit.setVerticalTextPosition(SwingConstants.BOTTOM);
         edit.setHorizontalTextPosition(SwingConstants.CENTER);
 
@@ -302,7 +309,6 @@ public class View {
         inputDescription1.setFont(inputDescription1.getFont().deriveFont((float) FONT_SIZE));
         inputDescription2 = new JLabel(BLANK);
         inputDescription2.setFont(inputDescription2.getFont().deriveFont((float) FONT_SIZE / 2));
-        claimCounter = new JLabel("C1:");
         inputClaim = new JTextArea("", 2, 50);
         inputClaim.setLineWrap(true);
         inputClaim.setWrapStyleWord(true);
@@ -405,27 +411,14 @@ public class View {
 
         save_assessment.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //saveAssessment();
-                JFileChooser fc = new JFileChooser();
-                FileNameExtensionFilter xmlFilter = new FileNameExtensionFilter("xml files (*.xml)", "xml");
-                fc.setFileFilter(xmlFilter);
-                fc.showSaveDialog(topFrame);
-                System.out.println(fc.getSelectedFile().toString());
-                String fileNameWithOutExt = FilenameUtils.removeExtension(fc.getSelectedFile().toString());
-                File f = new File(fileNameWithOutExt + ".xml");
-                saveAssessment(f);
+                saveAssessment();
             }
         });
 
         load_assessment.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                JFileChooser fc = new JFileChooser();
-                FileNameExtensionFilter xmlFilter = new FileNameExtensionFilter("xml files (*.xml)", "xml");
-                fc.addChoosableFileFilter(xmlFilter);
-                fc.setFileFilter(xmlFilter);
-                fc.showOpenDialog(topFrame);
-                File f = fc.getSelectedFile();
-                loadAssessment(f);
+                loadAssessment();
+
             }
         });
 
@@ -448,15 +441,13 @@ public class View {
                         JOptionPane.QUESTION_MESSAGE, null, null, null);
                 if (n == JOptionPane.YES_OPTION) {
                     if (reportChoiceButton1.isSelected()) {
-                        JOptionPane.showMessageDialog(choicePanel,
-                                "This type of report is not yet implemented");
+                        printReport(1);
                     }
                     if (reportChoiceButton2.isSelected()) {
-                        JOptionPane.showMessageDialog(choicePanel,
-                                "This type of report is not yet implemented");
+                        printReport(2);
                     }
                     if (reportChoiceButton3.isSelected()) {
-                        printRiskLandscape();
+                        printReport(3);
                     }
                 }
             }
@@ -476,6 +467,12 @@ public class View {
                 impToggle();
             }
         });
+       
+        transfer_risk.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                transfToggle();
+            }
+        });
 
         argTree.addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent e) {
@@ -483,8 +480,14 @@ public class View {
                 if (node instanceof Claim) {
                     if (((Claim) node).isDefender()) {
                         toggle_implemented.setEnabled(true);
+                        transfer_risk.setEnabled(true);
+                        toggle_implemented.setSelected(!((Claim) node).isImplementedClaim());
+                        transfer_risk.setSelected(((Claim) node).isTransferClaim());
                     } else {
-                        toggle_implemented.setEnabled(false);
+                        toggle_implemented.setEnabled(false);                        
+                        transfer_risk.setEnabled(false);                        
+                        toggle_implemented.setSelected(false);
+                        transfer_risk.setSelected(false);
                     }
                 }
             }
@@ -565,10 +568,12 @@ public class View {
             if (claim) {
                 Claim newClaim = new Claim(inp.getText());
                 tmod.insertNodeInto(newClaim, mod.getRisk(), mod.getRisk().getChildCount());
-                if (transfer_risk.isSelected()) {
-                    newClaim.setTransferClaim(true);
-                    switchClaim();
-                }
+//                if (transfer_risk.isSelected()) {
+//                    newClaim.setTransferClaim(true);
+//                }
+//                if (toggle_implemented.isSelected()) {
+//                    newClaim.setImplementedClaim(true);
+//                }
                 validate(newClaim);
                 switchClaim();
 
@@ -600,27 +605,27 @@ public class View {
         //If a string was returned, say so.
         if ((s != null) && (s.length() > 0)) {
             desc = s;
-        }
 
-        Risk risk = new Risk(desc);
+            Risk risk = new Risk(desc);
 
-        Element active_element = mod.getActiveElement();
-        if (active_element instanceof Risk) {
-            Category active_category = (Category) ((Risk) active_element).getParent();
-            tmod.insertNodeInto(risk, active_category, active_category.getChildCount());
-            mod.setActiveElement(risk);
-        } else if (active_element instanceof Category) {
-            tmod.insertNodeInto(risk, active_element, active_element.getChildCount());
-            mod.setActiveElement(risk);
-        } else {
-            System.err.println("An error occurred while attempting to insert a new risk into the assessment: Expected type either category or risk, found something else...");
-            System.err.println(active_element);
+            Element active_element = mod.getActiveElement();
+            if (active_element instanceof Risk) {
+                Category active_category = (Category) ((Risk) active_element).getParent();
+                tmod.insertNodeInto(risk, active_category, active_category.getChildCount());
+                mod.setActiveElement(risk);
+            } else if (active_element instanceof Category) {
+                tmod.insertNodeInto(risk, active_element, active_element.getChildCount());
+                mod.setActiveElement(risk);
+            } else {
+                System.err.println("An error occurred while attempting to insert a new risk into the assessment: Expected type either category or risk, found something else...");
+                System.err.println(active_element);
+            }
+            argTree.makeVisible(new TreePath(risk.getPath()));
+            mod.setRisk(risk);
+            claim = true;
+            updateGUIState();
+            inputClaim.grabFocus();
         }
-        argTree.makeVisible(new TreePath(risk.getPath()));
-        mod.setRisk(risk);
-        claim = true;
-        updateGUIState();
-        inputClaim.grabFocus();
     }
 
     private void addCategory() {
@@ -629,37 +634,38 @@ public class View {
 
         String desc = "";
         int pos = 0;
-        String s = (String) JOptionPane.showInputDialog(topFrame, "Category title?");
+        String s = (String) JOptionPane.showInputDialog(topFrame, "Category name?");
         //If a string was returned, say so.
         if ((s != null) && (s.length() > 0)) {
             desc = s;
-        }
-        try {
-            Risk active_risk = mod.getRisk();
-            Category active_category = null;
+
             try {
-                if (mod.getActiveElement() instanceof Category) {
-                    active_category = (Category) mod.getActiveElement();
-                } else {
-                    active_category = (Category) ((Risk) mod.getActiveElement()).getParent();
+                Risk active_risk = mod.getRisk();
+                Category active_category = null;
+                try {
+                    if (mod.getActiveElement() instanceof Category) {
+                        active_category = (Category) mod.getActiveElement();
+                    } else {
+                        active_category = (Category) ((Risk) mod.getActiveElement()).getParent();
+                    }
+
+                    pos = tmod.getIndexOfChild(mod.getAssessment(), active_category) + 1;
+
+                } catch (NullPointerException | IllegalArgumentException e) {
                 }
 
-                pos = tmod.getIndexOfChild(mod.getAssessment(), active_category) + 1;
+                Category new_category = new Category(desc);
 
-            } catch (NullPointerException | IllegalArgumentException e) {
+                tmod.insertNodeInto(new_category, mod.getAssessment(), pos);
+                argTree.expandRow(mod.getAssessment().getIndex(new_category));
+                mod.setActiveElement(new_category);
+                mod.setRisk(null);
+                claim = true;
+                updateGUIState();
+                inputClaim.grabFocus();
+            } catch (NoSuchElementException e) {
+                System.err.println("Errors occurred trying to create a new category: No such element exception.");
             }
-
-            Category new_category = new Category(desc);
-
-            tmod.insertNodeInto(new_category, mod.getAssessment(), pos);
-            argTree.expandRow(mod.getAssessment().getIndex(new_category));
-            mod.setActiveElement(new_category);
-            mod.setRisk(null);
-            claim = true;
-            updateGUIState();
-            inputClaim.grabFocus();
-        } catch (NoSuchElementException e) {
-            System.err.println("Errors occurred trying to create a new category: No such element exception.");
         }
     }
 
@@ -702,24 +708,26 @@ public class View {
             } else {
                 a = risk.getLastChild().getChildCount() + 1;
             }
-            try {
-                //Code for the transfer risk checkbox
-                if (risk.getLastChild() instanceof Claim) {
-                    Claim lastClaim = (Claim) risk.getLastChild();
-                    transfer_risk.setEnabled(!lastClaim.isDefender() && claim);
-                    if (!transfer_risk.isEnabled()) {
-                        transfer_risk.setSelected(false);
-                    }
-                }
-            } catch (NoSuchElementException e) {
-                //There is no specified claim or risk, so an exception is thrown.
-            }
+//            try {
+//                //Code for the transfer risk checkbox
+//                if (risk.getLastChild() instanceof Claim) {
+//                    Claim lastClaim = (Claim) risk.getLastChild();
+//                    transfer_risk.setEnabled(!lastClaim.isDefender() && claim);                    
+//                    toggle_implemented.setEnabled(!lastClaim.isDefender() && claim);
+//                    if (!transfer_risk.isEnabled()) {
+//                        transfer_risk.setSelected(false);
+//                    }
+//                    if (!toggle_implemented.isEnabled()) {
+//                        toggle_implemented.setSelected(false);
+//                    }
+//                }
+//            } catch (NoSuchElementException e) {
+//                //There is no specified claim or risk, so an exception is thrown.
+//            }
         } catch (NullPointerException e) {
             //Do nothing.
         }
 
-        String result = (claim) ? "C" + c + ":" : "A" + (c - 1) + "." + a + ":";
-        claimCounter.setText(result);
         if (mod.getRisk() == null) {
             inputClaim.setEnabled(false);
             inputClaim.setBackground(Color.lightGray);
@@ -782,7 +790,6 @@ public class View {
         inputDescription1.setText(REVISION);
         inputDescription2.setText(CANCEL_REVISION);
         inputClaim.setText(revision.getUserObject().toString());
-        claimCounter.setText("REV:");
         inputClaim.grabFocus();
     }
 
@@ -883,68 +890,222 @@ public class View {
         }
     }
 
-    public void saveAssessment(File f) {
-        XMLEncoder e;
-        try {
-            e = new XMLEncoder(
-                    new BufferedOutputStream(
-                            new FileOutputStream(f)));
-            e.writeObject(argTree.getModel());
-            e.close();
-        } catch (FileNotFoundException e1) {
-            System.err.println("error saving assessment: Invalid path specified");
-            e1.printStackTrace();
-        }
-    }
+    public void saveAssessment() {
+        JFileChooser fc = new JFileChooser();
 
-    public void loadAssessment(File f) {
-        FileInputStream os;
-        try {
-            os = new FileInputStream(f);
-            XMLDecoder encoder = new XMLDecoder(os);
-            DefaultTreeModel modl = (DefaultTreeModel) encoder.readObject();
-            encoder.close();
-
-            argTree.setModel(modl);
-            mod.setAssessment((DefaultMutableTreeNode) modl.getRoot());
-            updateGUIState();
-
-            for (int i = 0; i < argTree.getRowCount(); i++) {
-                argTree.expandRow(i);
+        if (lastDirectory == null) {
+            //Set the System root (My Computer) as currentDirectory
+            File startFile = new File(System.getProperty("user.dir"));                      //Get the current directory
+            while (!FileSystemView.getFileSystemView().isFileSystemRoot(startFile)) {        // Find System Root
+                startFile = startFile.getParentFile();
             }
-
-        } catch (FileNotFoundException e) {
-            System.err.println("Error loading assessment: File not found.");
-            e.printStackTrace();
+            fc.setCurrentDirectory(fc.getFileSystemView().getParentDirectory(startFile));
+        } else {
+            fc.setCurrentDirectory(lastDirectory);
         }
 
+        FileNameExtensionFilter xmlFilter = new FileNameExtensionFilter("xml files (*.xml)", "xml");
+        fc.setFileFilter(xmlFilter);
+        fc.showSaveDialog(topFrame);
+        if (fc.getSelectedFile() != null) {
+            lastDirectory = fc.getCurrentDirectory();
+            File f = new File(fc.getSelectedFile().toString() + ".xml");
+
+            XMLEncoder e;
+            try {
+                e = new XMLEncoder(
+                        new BufferedOutputStream(
+                                new FileOutputStream(f)));
+                e.writeObject(argTree.getModel());
+                e.close();
+            } catch (FileNotFoundException e1) {
+                System.err.println("error saving assessment: Invalid path specified");
+                e1.printStackTrace();
+            }
+        }
     }
 
-    private void printRiskLandscape() {
+    public void loadAssessment() {
+        JFileChooser fc = new JFileChooser();
+
+        if (lastDirectory == null) {
+            //Set the System root (My Computer) as currentDirectory
+            File startFile = new File(System.getProperty("user.dir"));                      //Get the current directory
+            while (!FileSystemView.getFileSystemView().isFileSystemRoot(startFile)) {        // Find System Root
+                startFile = startFile.getParentFile();
+            }
+            fc.setCurrentDirectory(fc.getFileSystemView().getParentDirectory(startFile));
+        } else {
+            fc.setCurrentDirectory(lastDirectory);
+        }
+
+        FileNameExtensionFilter xmlFilter = new FileNameExtensionFilter("xml files (*.xml)", "xml");
+        fc.addChoosableFileFilter(xmlFilter);
+        fc.setFileFilter(xmlFilter);
+        fc.showOpenDialog(topFrame);
+        File f = fc.getSelectedFile();
+
+        FileInputStream os;
+        if (fc.getSelectedFile() != null) {
+            lastDirectory = fc.getCurrentDirectory();
+            try {
+                os = new FileInputStream(f);
+                XMLDecoder encoder = new XMLDecoder(os);
+                DefaultTreeModel modl = (DefaultTreeModel) encoder.readObject();
+                encoder.close();
+
+                argTree.setModel(modl);
+                mod.setAssessment((DefaultMutableTreeNode) modl.getRoot());
+                updateGUIState();
+
+                for (int i = 0; i < argTree.getRowCount(); i++) {
+                    argTree.expandRow(i);
+                }
+
+            } catch (FileNotFoundException e) {
+                System.err.println("Error loading assessment: File not found.");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void printReport(int type) {
         TreeModel model = argTree.getModel();
         JFileChooser fc = new JFileChooser();
+
+        //Set the System root (My Computer) as currentDirectory
+        File startFile = new File(System.getProperty("user.dir"));                      //Get the current directory
+        while (!FileSystemView.getFileSystemView().isFileSystemRoot(startFile)) {        // Find System Root
+            startFile = startFile.getParentFile();
+        }
+        fc.setCurrentDirectory(fc.getFileSystemView().getParentDirectory(startFile));
+
         FileNameExtensionFilter htmlFilter = new FileNameExtensionFilter("html files (*.html)", "html");
         fc.setFileFilter(htmlFilter);
         fc.showSaveDialog(topFrame);
-        System.out.println(fc.getSelectedFile().toString());
         String fileNameWithOutExt = FilenameUtils.removeExtension(fc.getSelectedFile().toString());
         PrintStream out;
-        String toPrint = getTreeText(model, model.getRoot(), "&nbsp");
+        String toPrint = null;
+        switch (type) {
+            case 1:;
+                toPrint = "<html> <body><center><h1> ArgueSecure </h1> <h2> Countermeasures report</h2></center><br><br>" + getCountermeasuresText(model, model.getRoot(), true) + "</body></html>";
+                break;
+            case 2:
+                toPrint = "<html> <body><center><h1> ArgueSecure </h1> <h2> Unmitigated Risks report</h2></center><br><br>" + getUnmitigatedRisksText(model, model.getRoot()) + "</body></html>";              
+                break;
+            case 3:
+                toPrint = "<html> <body><center><h1> ArgueSecure </h1> <h2> Risk landscape report </h2></center><br><br>p"+ getTreeText(model, model.getRoot())+ "</body></html>";
+                break;
+        }
         try {
-            out = new PrintStream(fileNameWithOutExt);
+            out = new PrintStream(fileNameWithOutExt+ ".html");
             out.println(toPrint);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    private static String getTreeText(TreeModel model, Object object, String indent) {
-        String myRow = indent + object + "<br>";
-        for (int i = 0; i < model.getChildCount(object); i++) {
-            myRow += getTreeText(model, model.getChild(object, i), indent + "&nbsp&nbsp");
+    private static String getTreeText(TreeModel model, Object object) {
+        String result = "";
+        DefaultMutableTreeNode node=(DefaultMutableTreeNode) object;
+         if ((node instanceof Claim)) {
+            Claim c =(Claim) node;
+            result =  c.toOutputString() + "<br>";
         }
-        return myRow;
+         if ((node instanceof Assumption)) {
+            Assumption a =(Assumption) node;
+            result = a.toOutputString() + "<br>";
+        }
+         if ((node instanceof Risk)) {
+            Risk r =(Risk) node;
+            result = r.toOutputString() + "<br>";
+        }
+         if ((node instanceof Category)) {
+            Category cat =(Category) node;
+            result = cat.toOutputString() + "<br>";
+        }
+
+        for (int i = 0; i < model.getChildCount(object); i++) {
+            result += getTreeText(model, model.getChild(object, i));
+        }
+        return result;
     }
+    
+    private static String getUnmitigatedRisksText(TreeModel model, Object object) {
+        String result = "";
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) object;
+        if ((node instanceof Risk)) {                                   //if Risk
+            Risk r = (Risk) node;
+            if (model.getChildCount(object) % 2 != 0) {                      //and Has an odd amount of children
+                result = r.toOutputString() + "<br>";                           //add it
+                for (int i = 0; i < model.getChildCount(object); i++) {         //and add  its childer
+                    result += getUnmitigatedRisksText(model, model.getChild(object, i));
+                }
+            }
+        } else {
+            if ((node instanceof Claim)) {
+                Claim c = (Claim) node;
+                result = c.toOutputString() + "<br>";
+            }
+            if ((node instanceof Assumption)) {
+                Assumption a = (Assumption) node;
+                result = a.toOutputString() + "<br>";
+            }
+
+            if ((node instanceof Category)) {
+                Category cat = (Category) node;
+                result = cat.toOutputString() + "<br>";
+            }
+            for (int i = 0; i < model.getChildCount(object); i++) {
+                result += getUnmitigatedRisksText(model, model.getChild(object, i));
+            }
+        }
+
+        
+        return result;
+    }
+    
+    /**
+     * 
+     * @param model
+     * @param object
+     * @param includeImplemented whether or not to include implemented countermeasures
+     * @return 
+     */
+    private static String getCountermeasuresText(TreeModel model, Object object, boolean includeImplemented) {
+        String result = "";
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) object;
+        if ((node instanceof Risk)) {                                   //if Risk
+            Risk r = (Risk) node;
+            if (model.getChildCount(object) > 1 && model.getChildCount(object) % 2 == 0 ) {                      //and Has an odd amount of children
+                result = r.toOutputString() + "<br>";                           //add it
+                for (int i = 0; i < model.getChildCount(object); i++) {         //and add  its childer
+                    result += getCountermeasuresText(model, model.getChild(object, i), includeImplemented);
+                }
+            }
+        } else {
+            if ((node instanceof Claim)) {
+                Claim c = (Claim) node;
+                result = c.toOutputString() + "<br>";
+            }
+            if ((node instanceof Assumption)) {
+                Assumption a = (Assumption) node;
+                result = a.toOutputString() + "<br>";
+            }
+
+            if ((node instanceof Category)) {
+                Category cat = (Category) node;
+                result = cat.toOutputString() + "<br>";
+            }
+            for (int i = 0; i < model.getChildCount(object); i++) {
+                result += getCountermeasuresText(model, model.getChild(object, i), includeImplemented);
+            }
+        }
+
+        
+        return result;
+    }
+
 
     private void impToggle() {
         DefaultMutableTreeNode n = (DefaultMutableTreeNode) argTree.getLastSelectedPathComponent();
@@ -956,6 +1117,19 @@ public class View {
             return;
         }
         c.setImplementedClaim(!c.isImplementedClaim());
+        argTree.treeDidChange();
+    }
+    
+    private void transfToggle() {
+        DefaultMutableTreeNode n = (DefaultMutableTreeNode) argTree.getLastSelectedPathComponent();
+        if (!(n instanceof Claim)) {
+            return;
+        }
+        Claim c = (Claim) n;
+        if (!c.isDefender()) {
+            return;
+        }
+        c.setTransferClaim(!c.isTransferClaim());
         argTree.treeDidChange();
     }
 
@@ -1143,16 +1317,7 @@ public class View {
         action = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //saveAssessment();
-                JFileChooser fc = new JFileChooser();
-                FileNameExtensionFilter xmlFilter = new FileNameExtensionFilter("xml files (*.xml)", "xml");
-                fc.setFileFilter(xmlFilter);
-                fc.showSaveDialog(topFrame);
-                if (fc.getSelectedFile() != null);
-                {
-                    File f = new File(fc.getSelectedFile().toString() + ".xml");
-                    saveAssessment(f);
-                }
+                saveAssessment();
             }
         };
         inp.put(key, desc);
@@ -1163,13 +1328,7 @@ public class View {
         action = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser fc = new JFileChooser();
-                FileNameExtensionFilter xmlFilter = new FileNameExtensionFilter("xml files (*.xml)", "xml");
-                fc.addChoosableFileFilter(xmlFilter);
-                fc.setFileFilter(xmlFilter);
-                fc.showOpenDialog(topFrame);
-                File f = fc.getSelectedFile();
-                loadAssessment(f);
+                loadAssessment();
             }
         };
         inp.put(key, desc);
@@ -1199,16 +1358,16 @@ public class View {
         inp.put(key, desc);
         am.put(desc, action);
 
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK);
-        desc = "implemented";
-        action = new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                impToggle();
-            }
-        };
-        inp.put(key, desc);
-        am.put(desc, action);
+//        key = KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK);
+//        desc = "implemented";
+//        action = new AbstractAction() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                impToggle();
+//            }
+//        };
+//        inp.put(key, desc);
+//        am.put(desc, action);
 
         key = KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, KeyEvent.CTRL_DOWN_MASK);
         desc = "increaseFontSize";
@@ -1216,10 +1375,10 @@ public class View {
             @Override
             public void actionPerformed(ActionEvent e) {
                 FONT_SIZE = FONT_SIZE + 2;
-                LARGE_FONT_SIZE =LARGE_FONT_SIZE+2;
-                System.out.println("Font size is now: " + FONT_SIZE + "/"+ LARGE_FONT_SIZE);            
+                LARGE_FONT_SIZE = LARGE_FONT_SIZE + 2;
+                System.out.println("Font size is now: " + FONT_SIZE + "/" + LARGE_FONT_SIZE);
                 FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + FONT_SIZE + "pt;'>";
-                RISK_FORMAT= "<body style='width: " + LINE_WIDTH + "px;font-size: " + LARGE_FONT_SIZE + "pt;'>";                
+                RISK_FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + LARGE_FONT_SIZE + "pt;'>";
                 CATEGORY_FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + LARGE_FONT_SIZE + "pt;'>";
                 inputDescription1.setFont(inputDescription1.getFont().deriveFont(Math.min((float) 24, (float) FONT_SIZE)));
                 inputDescription2.setFont(inputDescription2.getFont().deriveFont(Math.min((float) 12, (float) FONT_SIZE / 2)));
@@ -1237,11 +1396,11 @@ public class View {
         action = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                FONT_SIZE = FONT_SIZE - 2;                
-                LARGE_FONT_SIZE =LARGE_FONT_SIZE-3;
+                FONT_SIZE = FONT_SIZE - 2;
+                LARGE_FONT_SIZE = LARGE_FONT_SIZE - 3;
                 System.out.println("Font size is now: " + FONT_SIZE);
                 FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + FONT_SIZE + "pt;'>";
-                RISK_FORMAT= "<body style='width: " + LINE_WIDTH + "px;font-size: " + LARGE_FONT_SIZE + "pt;'>";                
+                RISK_FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + LARGE_FONT_SIZE + "pt;'>";
                 CATEGORY_FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + LARGE_FONT_SIZE + "pt;'>";
                 inputDescription1.setFont(inputDescription1.getFont().deriveFont(Math.min((float) 24, (float) FONT_SIZE)));
                 inputDescription2.setFont(inputDescription2.getFont().deriveFont(Math.min((float) 24 / 2, (float) FONT_SIZE / 2)));

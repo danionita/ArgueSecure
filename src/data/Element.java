@@ -46,6 +46,8 @@ public abstract class Element extends DefaultMutableTreeNode implements Serializ
 	public String toString(){
 		return super.getUserObject().toString();
 	}
+        
+
 	
 	public abstract int getNr();
 	

@@ -54,8 +54,9 @@ public class Claim extends Element{
 		return getParent().getIndex(this);
 	}
 	
+        @Override
 	public String toString(){
-		String result = "<html>" + View.FORMAT + "<b>";
+		String result = "<html>" + View.RISK_FORMAT ;
 		if (!implementedClaim){
 			result += "<font color=\"blue\">";
 		}
@@ -63,17 +64,37 @@ public class Claim extends Element{
 			result += ((super.getValid()) ? VALID : INVALID);
 		}
 		if (transferClaim){
-			//result += "<i>Transfer claim:</i>";
-			result += "T" + + (getNr()+1) +": " + super.getUserObject();
+			//result += "T" + + (getNr()+1) +": " + super.getUserObject();
+                    result += super.getUserObject();
 		}else{
-			//result += isDefender() ? "Defender C" : "Attacker C";
-			result += "C" + (getNr()+1) +": "+super.getUserObject();
+			//result += "C" + (getNr()+1) +": "+super.getUserObject();
+                    result += super.getUserObject();
 		}
 		if (!implementedClaim) result =
-		result += "</b></font></html>";
+		result += "</font></html>";
 		
 		return result ;
 	}
+        
+       public String toOutputString(){
+           	String result = View.OUTPUT_CLAIM_FORMAT ;
+		if (!implementedClaim){
+			result += "<font color=\"blue\">";
+		}
+		else{
+			result += ((super.getValid()) ? VALID : INVALID);
+		}
+		if (transferClaim){
+			result += "T" + + (getNr()+1) +": " + super.getUserObject();
+                   
+		}else{
+			result += "C" + (getNr()+1) +": "+super.getUserObject();
+                    
+		}
+		result += "</font></div>";
+		
+		return result ;
+       }
 	
 	public boolean isDefender(){
 		return (getNr() % 2 == 1);
@@ -81,10 +102,13 @@ public class Claim extends Element{
 	
 	public void setTransferClaim(boolean b){
 		transferClaim = b;
-		this.setAllowsChildren(b);
 	}
 	
 	public boolean getTransferClaim(){
 		return transferClaim;
+	}
+        
+        public boolean isTransferClaim(){
+              return transferClaim;
 	}
 }

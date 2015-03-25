@@ -43,4 +43,9 @@ public class Category extends Element{
 		String result = "<html>" + View.CATEGORY_FORMAT + "CATEGORY: " + super.getUserObject().toString().toUpperCase();		
 		return result;
 	}		
+        
+        public String toOutputString(){
+		String result =  View.OUTPUT_CATEGORY_FORMAT + "CATEGORY: " + super.getUserObject().toString().toUpperCase()+"</div>";		
+		return result;
+	}		
 }

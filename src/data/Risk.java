@@ -34,9 +34,17 @@ public class Risk extends Element{
 		return super.getUserObject();
 	}
 	
+        @Override
 	public String toString(){
 		String desc = "R" + getNr() + ": ";
-		if (isActive()) desc = "<html>" + View.RISK_FORMAT +"<b>"+desc+"</b>" + super.getUserObject() + "</html>";
+		if (isActive()) desc = "<html>" + View.RISK_FORMAT +"<b>"+desc + super.getUserObject() + "</b></html>";
+		else desc = desc + super.getUserObject();
+		return desc;
+	}
+        
+        public String toOutputString(){
+		String desc = "R" + getNr() + ": ";
+		if (isActive()) desc =  View.OUTPUT_RISK_FORMAT +"<b>"+desc + super.getUserObject() + "</b></div>";
 		else desc = desc + super.getUserObject();
 		return desc;
 	}
