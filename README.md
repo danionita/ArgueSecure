@@ -1,6 +1,6 @@
 # ArgueSecure
 
-ArgueSecure allows you to build and maintain a list of risk,s with the following structure
+ArgueSecure allows you to build and maintain a list of risks with the following structure
 - Category: <A category of risks>
   - R1: <a risk>
     - (sword) C1: <Claim made by an attacker about the existence of an attack path>
