@@ -33,8 +33,8 @@ The preferred process to use the tool is as follows:
   7.	I a new Risk Category can be identified, go back to step 1.
 
 ### Color codes ###
-Each Defender or Attacker argument is automatically highlighted in either green or red. Green arguments have not beet defeated yet or their counter-argument itself has been subsequently defeated. Red arguments have been defeated by an undefeated arguement. This defeasability relationship is recurive for each Risk.
-Implemented Defender arguments are colored blue.
+- BLACK:  the color of all elements except Claims
+- GREEN/RED: only applies to Claims.  Claims start out as green and turn red once defeated. Then, turn green again once their counter-arguments has bee defeated and so on.
 
 ### Tips & Tricks:
 - When to start a New Risk:
