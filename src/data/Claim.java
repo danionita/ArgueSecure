@@ -23,14 +23,14 @@ public class Claim extends Element{
 		super(desc);
 		super.setValid(true);
 		transferClaim = false;
-		implementedClaim = true;
+		implementedClaim = false;
 	}
 	
 	public Claim(){
 		super();
 		super.setValid(true);
 		transferClaim=false;
-		implementedClaim=true;
+		implementedClaim=false;
 	}
 		
 	/**
@@ -57,40 +57,26 @@ public class Claim extends Element{
         @Override
 	public String toString(){
 		String result = "<html>" + View.RISK_FORMAT ;
-		if (!implementedClaim){
-			result += "<font color=\"blue\">";
-		}
-		else{
-			result += ((super.getValid()) ? VALID : INVALID);
-		}
-		if (transferClaim){
-			//result += "T" + + (getNr()+1) +": " + super.getUserObject();
-                    result += super.getUserObject();
-		}else{
-			//result += "C" + (getNr()+1) +": "+super.getUserObject();
-                    result += super.getUserObject();
-		}
-		if (!implementedClaim) result =
-		result += "</font></html>";
-		
+		result += ((super.getValid()) ? VALID : INVALID);
+                result += super.getUserObject();
+		if (implementedClaim) result +="&#x2713;";
+                result += "</font></html>";		
 		return result ;
 	}
         
        public String toOutputString(){
            	String result = View.OUTPUT_CLAIM_FORMAT ;
-		if (!implementedClaim){
-			result += "<font color=\"blue\">";
-		}
-		else{
+
 			result += ((super.getValid()) ? VALID : INVALID);
-		}
+
 		if (transferClaim){
 			result += "T" + + (getNr()+1) +": " + super.getUserObject();
                    
 		}else{
 			result += "C" + (getNr()+1) +": "+super.getUserObject();
                     
-		}
+		}                
+		if (implementedClaim) result +=" &#x2713;";
 		result += "</font></div>";
 		
 		return result ;

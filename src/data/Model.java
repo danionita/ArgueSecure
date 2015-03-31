@@ -25,7 +25,7 @@ public class Model {
 
 
 	public Model(){
-		assessmentRoot = new DefaultMutableTreeNode("New Risk Assessment");
+		assessmentRoot = new DefaultMutableTreeNode("Argumentation-based Risk Assessment");
 	}
 
 	/**

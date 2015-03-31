@@ -56,24 +56,24 @@ public class View {
     public static int LINE_WIDTH = 600;
     public static int FONT_SIZE = 22;
     public static int LARGE_FONT_SIZE = 26;
-    
+
     public static String FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + FONT_SIZE + "pt;'>";
     public static String CATEGORY_FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + LARGE_FONT_SIZE + "pt;'>";
     public static String RISK_FORMAT = "<body style='width: " + LINE_WIDTH + "px;font-size: " + LARGE_FONT_SIZE + "pt;'>";
-    
-    public static String OUTPUT_ASSUMPTION_FORMAT = "<div style='word-wrap: break-all;margin-left: 100px;font-size: " + FONT_SIZE/2 + "pt;'>";
-    public static String OUTPUT_CATEGORY_FORMAT = "<div style='word-wrap: break-all;font-size: " + LARGE_FONT_SIZE/2 + "pt;'>";
-    public static String OUTPUT_RISK_FORMAT = "<div style='word-wrap: break-all;margin-left: 50px;font-size: " + LARGE_FONT_SIZE/2 + "pt;'>";    
-    public static String OUTPUT_CLAIM_FORMAT = "<div style='word-wrap: break-all;margin-left: 75px;font-size: " + LARGE_FONT_SIZE/2 + "pt;'>";
-    
+
+    public static String OUTPUT_ASSUMPTION_FORMAT = "<div style='word-wrap: break-all;margin-left: 100px;font-size: " + FONT_SIZE / 2 + "pt;'>";
+    public static String OUTPUT_CATEGORY_FORMAT = "<div style='word-wrap: break-all;font-size: " + LARGE_FONT_SIZE / 2 + "pt;'>";
+    public static String OUTPUT_RISK_FORMAT = "<div style='word-wrap: break-all;margin-left: 50px;font-size: " + LARGE_FONT_SIZE / 2 + "pt;'>";
+    public static String OUTPUT_CLAIM_FORMAT = "<div style='word-wrap: break-all;margin-left: 75px;font-size: " + LARGE_FONT_SIZE / 2 + "pt;'>";
 
     private JTree argTree;
     private JFrame topFrame;
     private JPanel topPanel;
     private JPanel choicePanel;
-    JRadioButton reportChoiceButton1;
-    JRadioButton reportChoiceButton2;
-    JRadioButton reportChoiceButton3;
+    JRadioButton allCountermeasuresButton;
+    JRadioButton unmitigatedRisksButton;
+    JRadioButton riskLandscapeButton;
+    JRadioButton unimplementedCountermeasuresButton;
 
     private ButtonGroup reportChoiceButton;
     //used to track removed rounds
@@ -366,15 +366,19 @@ public class View {
         //-------------REPORT TYPE CHOICE PANEL----------//
         choicePanel = new JPanel(new GridLayout(3, 5));
         reportChoiceButton = new ButtonGroup();
-        reportChoiceButton1 = new JRadioButton("Countermeasures");
-        reportChoiceButton.add(reportChoiceButton1);
-        reportChoiceButton2 = new JRadioButton("Unmitigated risks");
-        reportChoiceButton.add(reportChoiceButton2);
-        reportChoiceButton3 = new JRadioButton("Risk Landscape");
-        reportChoiceButton.add(reportChoiceButton3);
-        choicePanel.add(reportChoiceButton1);
-        choicePanel.add(reportChoiceButton2);
-        choicePanel.add(reportChoiceButton3);
+        allCountermeasuresButton = new JRadioButton("Countermeasures");
+        reportChoiceButton.add(allCountermeasuresButton);
+        unimplementedCountermeasuresButton = new JRadioButton("Un-implemented Countermeasures");
+        reportChoiceButton.add(unimplementedCountermeasuresButton);
+        unmitigatedRisksButton = new JRadioButton("Unmitigated risks");
+        reportChoiceButton.add(unmitigatedRisksButton);
+        riskLandscapeButton = new JRadioButton("Risk Landscape");
+        reportChoiceButton.add(riskLandscapeButton);
+        choicePanel.add(allCountermeasuresButton);        
+        choicePanel.add(unimplementedCountermeasuresButton);
+        choicePanel.add(unmitigatedRisksButton);
+        choicePanel.add(riskLandscapeButton);
+        
 
         //---------------------------------------//
         //------------ACTION LISTENERS-----------//
@@ -440,14 +444,17 @@ public class View {
                         "Choose report type", JOptionPane.OK_CANCEL_OPTION,
                         JOptionPane.QUESTION_MESSAGE, null, null, null);
                 if (n == JOptionPane.YES_OPTION) {
-                    if (reportChoiceButton1.isSelected()) {
+                    if (allCountermeasuresButton.isSelected()) {
                         printReport(1);
                     }
-                    if (reportChoiceButton2.isSelected()) {
+                    if (unimplementedCountermeasuresButton.isSelected()) {
                         printReport(2);
                     }
-                    if (reportChoiceButton3.isSelected()) {
+                    if (unmitigatedRisksButton.isSelected()) {
                         printReport(3);
+                    }
+                    if (riskLandscapeButton.isSelected()) {
+                        printReport(4);
                     }
                 }
             }
@@ -467,7 +474,7 @@ public class View {
                 impToggle();
             }
         });
-       
+
         transfer_risk.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 transfToggle();
@@ -481,11 +488,11 @@ public class View {
                     if (((Claim) node).isDefender()) {
                         toggle_implemented.setEnabled(true);
                         transfer_risk.setEnabled(true);
-                        toggle_implemented.setSelected(!((Claim) node).isImplementedClaim());
+                        toggle_implemented.setSelected(((Claim) node).isImplementedClaim());
                         transfer_risk.setSelected(((Claim) node).isTransferClaim());
                     } else {
-                        toggle_implemented.setEnabled(false);                        
-                        transfer_risk.setEnabled(false);                        
+                        toggle_implemented.setEnabled(false);
+                        transfer_risk.setEnabled(false);
                         toggle_implemented.setSelected(false);
                         transfer_risk.setSelected(false);
                     }
@@ -708,22 +715,7 @@ public class View {
             } else {
                 a = risk.getLastChild().getChildCount() + 1;
             }
-//            try {
-//                //Code for the transfer risk checkbox
-//                if (risk.getLastChild() instanceof Claim) {
-//                    Claim lastClaim = (Claim) risk.getLastChild();
-//                    transfer_risk.setEnabled(!lastClaim.isDefender() && claim);                    
-//                    toggle_implemented.setEnabled(!lastClaim.isDefender() && claim);
-//                    if (!transfer_risk.isEnabled()) {
-//                        transfer_risk.setSelected(false);
-//                    }
-//                    if (!toggle_implemented.isEnabled()) {
-//                        toggle_implemented.setSelected(false);
-//                    }
-//                }
-//            } catch (NoSuchElementException e) {
-//                //There is no specified claim or risk, so an exception is thrown.
-//            }
+
         } catch (NullPointerException e) {
             //Do nothing.
         }
@@ -908,9 +900,9 @@ public class View {
         fc.setFileFilter(xmlFilter);
         fc.showSaveDialog(topFrame);
         if (fc.getSelectedFile() != null) {
+            String fileNameWithOutExt = FilenameUtils.removeExtension(fc.getSelectedFile().toString());
+            File f = new File(fileNameWithOutExt + ".xml");
             lastDirectory = fc.getCurrentDirectory();
-            File f = new File(fc.getSelectedFile().toString() + ".xml");
-
             XMLEncoder e;
             try {
                 e = new XMLEncoder(
@@ -987,18 +979,21 @@ public class View {
         PrintStream out;
         String toPrint = null;
         switch (type) {
-            case 1:;
+            case 1:
                 toPrint = "<html> <body><center><h1> ArgueSecure </h1> <h2> Countermeasures report</h2></center><br><br>" + getCountermeasuresText(model, model.getRoot(), true) + "</body></html>";
                 break;
             case 2:
-                toPrint = "<html> <body><center><h1> ArgueSecure </h1> <h2> Unmitigated Risks report</h2></center><br><br>" + getUnmitigatedRisksText(model, model.getRoot()) + "</body></html>";              
+                toPrint = "<html> <body><center><h1> ArgueSecure </h1> <h2> Un-implemented Countermeasures report</h2></center><br><br>" + getCountermeasuresText(model, model.getRoot(), false) + "</body></html>";
                 break;
             case 3:
-                toPrint = "<html> <body><center><h1> ArgueSecure </h1> <h2> Risk landscape report </h2></center><br><br>p"+ getTreeText(model, model.getRoot())+ "</body></html>";
+                toPrint = "<html> <body><center><h1> ArgueSecure </h1> <h2> Unmitigated Risks report</h2></center><br><br>" + getUnmitigatedRisksText(model, model.getRoot()) + "</body></html>";
+                break;
+            case 4:
+                toPrint = "<html> <body><center><h1> ArgueSecure </h1> <h2> Risk landscape report </h2></center><br><br>p" + getTreeText(model, model.getRoot()) + "</body></html>";
                 break;
         }
         try {
-            out = new PrintStream(fileNameWithOutExt+ ".html");
+            out = new PrintStream(fileNameWithOutExt + ".html");
             out.println(toPrint);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
@@ -1007,21 +1002,21 @@ public class View {
 
     private static String getTreeText(TreeModel model, Object object) {
         String result = "";
-        DefaultMutableTreeNode node=(DefaultMutableTreeNode) object;
-         if ((node instanceof Claim)) {
-            Claim c =(Claim) node;
-            result =  c.toOutputString() + "<br>";
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) object;
+        if ((node instanceof Claim)) {
+            Claim c = (Claim) node;
+            result = c.toOutputString() + "<br>";
         }
-         if ((node instanceof Assumption)) {
-            Assumption a =(Assumption) node;
+        if ((node instanceof Assumption)) {
+            Assumption a = (Assumption) node;
             result = a.toOutputString() + "<br>";
         }
-         if ((node instanceof Risk)) {
-            Risk r =(Risk) node;
+        if ((node instanceof Risk)) {
+            Risk r = (Risk) node;
             result = r.toOutputString() + "<br>";
         }
-         if ((node instanceof Category)) {
-            Category cat =(Category) node;
+        if ((node instanceof Category)) {
+            Category cat = (Category) node;
             result = cat.toOutputString() + "<br>";
         }
 
@@ -1030,7 +1025,7 @@ public class View {
         }
         return result;
     }
-    
+
     private static String getUnmitigatedRisksText(TreeModel model, Object object) {
         String result = "";
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) object;
@@ -1038,7 +1033,7 @@ public class View {
             Risk r = (Risk) node;
             if (model.getChildCount(object) % 2 != 0) {                      //and Has an odd amount of children
                 result = r.toOutputString() + "<br>";                           //add it
-                for (int i = 0; i < model.getChildCount(object); i++) {         //and add  its childer
+                for (int i = 0; i < model.getChildCount(object); i++) {         //and add  its children
                     result += getUnmitigatedRisksText(model, model.getChild(object, i));
                 }
             }
@@ -1061,23 +1056,23 @@ public class View {
             }
         }
 
-        
         return result;
     }
-    
+
     /**
-     * 
+     *
      * @param model
      * @param object
-     * @param includeImplemented whether or not to include implemented countermeasures
-     * @return 
+     * @param includeImplemented whether or not to include implemented
+     * countermeasures
+     * @return
      */
     private static String getCountermeasuresText(TreeModel model, Object object, boolean includeImplemented) {
         String result = "";
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) object;
         if ((node instanceof Risk)) {                                   //if Risk
             Risk r = (Risk) node;
-            if (model.getChildCount(object) > 1 && model.getChildCount(object) % 2 == 0 ) {                      //and Has an odd amount of children
+            if (model.getChildCount(object) > 1 && model.getChildCount(object) % 2 == 0) {                      //and Has an even amount of children
                 result = r.toOutputString() + "<br>";                           //add it
                 for (int i = 0; i < model.getChildCount(object); i++) {         //and add  its childer
                     result += getCountermeasuresText(model, model.getChild(object, i), includeImplemented);
@@ -1086,13 +1081,17 @@ public class View {
         } else {
             if ((node instanceof Claim)) {
                 Claim c = (Claim) node;
-                result = c.toOutputString() + "<br>";
+                if(c.isDefender()){
+                if (c.isImplementedClaim()) {
+                    if (includeImplemented) {
+                        result = c.toOutputString() + "<br>";
+                    }
+                } else {
+                    result = c.toOutputString() + "<br>";
+                }
+                }
             }
-            if ((node instanceof Assumption)) {
-                Assumption a = (Assumption) node;
-                result = a.toOutputString() + "<br>";
-            }
-
+          
             if ((node instanceof Category)) {
                 Category cat = (Category) node;
                 result = cat.toOutputString() + "<br>";
@@ -1102,10 +1101,8 @@ public class View {
             }
         }
 
-        
         return result;
     }
-
 
     private void impToggle() {
         DefaultMutableTreeNode n = (DefaultMutableTreeNode) argTree.getLastSelectedPathComponent();
@@ -1119,7 +1116,7 @@ public class View {
         c.setImplementedClaim(!c.isImplementedClaim());
         argTree.treeDidChange();
     }
-    
+
     private void transfToggle() {
         DefaultMutableTreeNode n = (DefaultMutableTreeNode) argTree.getLastSelectedPathComponent();
         if (!(n instanceof Claim)) {
@@ -1368,7 +1365,6 @@ public class View {
 //        };
 //        inp.put(key, desc);
 //        am.put(desc, action);
-
         key = KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, KeyEvent.CTRL_DOWN_MASK);
         desc = "increaseFontSize";
         action = new AbstractAction() {
