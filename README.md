@@ -14,7 +14,7 @@ ArgueSecure allows you to build and maintain a list of risks with the following 
   - R2: etc.
 - Category: etc.
 
-Defender’s arguments can refer to comp;onents or architectural decisions that reduce a risk, and to decisions to transfer some risk to a third party (e.g. to an insurance company or to a customer).
+Defender’s arguments can refer to components or architectural decisions that reduce a risk, and to decisions to transfer some risk to a third party (e.g. to an insurance company or to a customer).
 If a risk  ends with all attacker’s claims partly or completely defeated, then all attack paths claimed by attackers in this argument have been partly or completely mitigated, or transferred to third parties. Risks that are undefeated, are accepted by the defender. 
 The tool allows the production of lists of mitigations per risk, and of risks per mitigation. It provides a memory of the reasons why mitigations have been introduced, and which risks have been considered for mitigation.
 
@@ -24,13 +24,14 @@ Conducting an argument-based RA requires little preparation. Any number of stake
 The preferred process to use the tool is as follows:
   1.  Create New Risk and give it a name
   2.  Create a New Risk under this Category, and provide a brief name/description of it
-  3.  Each Risk starts with an Attacker argument, describing an attack path or refining the Risk. .Each argument consists of a Claim, supported by one or more assumptions. Use CTRL+SPACE to switch between Claims and Assumptions.
-  4.	Each Attacker argument may be countered by a Defender argument, describing a mitigation, reduction or transfer of the attack. In case the argument describes a Risk Transfer, the "Transfer" checkbox should be ticked.
+  3.  Each Risk starts with an Attacker argument, describing an attack path or refining the Risk. Each argument consists of a Claim, supported by one or more assumptions. Use CTRL+SPACE to switch between entering Claims and Assumptions.
+  4.	Each Attacker argument may be countered by a Defender argument, describing a mitigation, reduction or transfer of the Risk.
   5.	This back-and-forth rhetoric can continue until: 
     o	The Attacker team is unable or unwilling to counter the last Defender argument. This means the Risk has been mitigated sufficiently for this Attacker.
     o	The Defender team is unable or unwilling to counter the last Attacker argument. This means the (residual) Risk has been accepted.
   6.	If other Risks can be identified under this Cetegory, go back to step 2 and create a new Risk.
   7.	I a new Risk Category can be identified, go back to step 1.
+  8.	At any time during the assessment, Defender arguments can be marked as "Implemented" (if they describe existing risk countermeasures) and/or "Transfer" (if they descibe a risk transfer).
 
 ### Color codes ###
 - BLACK:  the color of all elements except Claims
@@ -50,9 +51,7 @@ The preferred process to use the tool is as follows:
 
 
 ## DEVELOPMENT PLAN
-This is a first version, still missing some functionality. In the near future, we plan to add:
-- extended keyword/search  functionality aimed at searching for and highlighting arguments that pertain to the same components/assets.
-- various report generation options, such as a Risk Map, a list of Countermeasures to be implemented and a list of important components.
+In the near future, we plan to add extended keyword/search  functionality aimed at searching for and highlighting arguments that pertain to the same components/assets.
 
 
 
