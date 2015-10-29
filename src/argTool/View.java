@@ -374,11 +374,10 @@ public class View {
         reportChoiceButton.add(unmitigatedRisksButton);
         riskLandscapeButton = new JRadioButton("Risk Landscape");
         reportChoiceButton.add(riskLandscapeButton);
-        choicePanel.add(allCountermeasuresButton);        
+        choicePanel.add(allCountermeasuresButton);
         choicePanel.add(unimplementedCountermeasuresButton);
         choicePanel.add(unmitigatedRisksButton);
         choicePanel.add(riskLandscapeButton);
-        
 
         //---------------------------------------//
         //------------ACTION LISTENERS-----------//
@@ -575,14 +574,8 @@ public class View {
             if (claim) {
                 Claim newClaim = new Claim(inp.getText());
                 tmod.insertNodeInto(newClaim, mod.getRisk(), mod.getRisk().getChildCount());
-//                if (transfer_risk.isSelected()) {
-//                    newClaim.setTransferClaim(true);
-//                }
-//                if (toggle_implemented.isSelected()) {
-//                    newClaim.setImplementedClaim(true);
-//                }
                 validate(newClaim);
-                switchClaim();
+                //switchClaim();
 
                 //<---Assumption				
             } else {
@@ -802,13 +795,21 @@ public class View {
             //if its a risk, remember where we put it.
             if (n instanceof Risk) {
                 remPosition = nParent.getIndex(n);
+                System.out.println("n is a Risk");
             }
             if (n instanceof Category) {
                 remPositionC = nParent.getIndex(n);
+                System.out.println("n is a Category");
             }
             tmod.removeNodeFromParent(n);
             editHistory.push(n);
-            claim = (n instanceof Claim);
+
+            if (n instanceof Claim) {
+                System.out.println("n is a cLAIM");
+                //revalidate the other claims
+                validate((Claim) nParent.getLastChild());
+                claim = (n instanceof Claim);
+            }
 
             if (n instanceof Risk) {
                 //if its a risk, set the
@@ -1081,17 +1082,17 @@ public class View {
         } else {
             if ((node instanceof Claim)) {
                 Claim c = (Claim) node;
-                if(c.isDefender()){
-                if (c.isImplementedClaim()) {
-                    if (includeImplemented) {
+                if (c.isDefender()) {
+                    if (c.isImplementedClaim()) {
+                        if (includeImplemented) {
+                            result = c.toOutputString() + "<br>";
+                        }
+                    } else {
                         result = c.toOutputString() + "<br>";
                     }
-                } else {
-                    result = c.toOutputString() + "<br>";
-                }
                 }
             }
-          
+
             if ((node instanceof Category)) {
                 Category cat = (Category) node;
                 result = cat.toOutputString() + "<br>";
