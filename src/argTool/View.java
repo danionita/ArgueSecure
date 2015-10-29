@@ -93,7 +93,7 @@ public class View {
     private static final String DEFENCE = "New DEFENCE: (Press Control + Space to switch to assmptions)";
     private static final String ATTACK = "New ATTACK: (Press Control + Space to switch to assmptions)";
     private static final String ASSUMPTION = "New ASSUMPTION:";
-    private static final String REVISION = "Revising:";
+    private static final String REVISION = "Edit mode:";
     private static final Dimension BUTTON_SIZE = new Dimension(120, 60);
     private static final Dimension WIDE_BUTTON_SIZE = new Dimension(240, 60);
 
@@ -608,7 +608,7 @@ public class View {
         editHistory.clear();
 
         String desc = "";
-        String s = (String) JOptionPane.showInputDialog(topFrame, "Risk title?");
+        String s = (String) JOptionPane.showInputDialog(topFrame, "Risk name?");
         //If a string was returned, say so.
         if ((s != null) && (s.length() > 0)) {
             desc = s;
