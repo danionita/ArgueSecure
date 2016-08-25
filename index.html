@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>ArgueSecure - homepage</title>
+    <title>ArgueSecure by danionita</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <link rel="stylesheet" href="stylesheets/github-dark.css">
     <script src="javascripts/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
@@ -21,121 +21,31 @@
         <p>Argumentation-based Risk Assessment tool</p>
         <p class="view"><a href="https://github.com/danionita/ArgueSecure">View the Project on GitHub <small>danionita/ArgueSecure</small></a></p>
         <ul>
-          <li><a href="https://github.com/danionita/ArgueSecure/zipball/master">Download <strong>source</strong></a></li>
-          <li><a href="https://github.com/danionita/ArgueSecure/releases/download/v1.2.1/ArgueSecure.jar">Download <strong>release</strong></a></li>
+          <li><a href="https://github.com/danionita/ArgueSecure/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/danionita/ArgueSecure/tarball/master">Download <strong>TAR Ball</strong></a></li>
           <li><a href="https://github.com/danionita/ArgueSecure">View On <strong>GitHub</strong></a></li>
         </ul>
       </header>
       <section>
+        <h1>
+<a id="arguesecure" class="anchor" href="#arguesecure" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>ArgueSecure</h1>
 
-
-
-<p>ArgueSecure allows you to <b> build </b>  and <b>maintain </b>a <strong>list of risks</strong> with the following structure: </p>
-<ul>
-<li>  Category: &lt;A category of risks&gt;
-  <ul>
-  <li>  R1: &lt;a risk&gt;
-    <ul>
-    <li>  (sword)  &lt;Claim made by an attacker about the existence of an attack path&gt;
-      <ul>
-      <li>  A &lt;An assumption of the claim&gt;
-      <li>  A &lt;Another assumption of the claim&gt;
-      </ul>
-    <li> (shield/transfer) &lt;Claim made by a defender, about a mitigation in the Target of Assessment that partly or completely defeats the attacker’s claim; or about a transfer of the Risk to another actor. &gt;
-      <ul>
-      <li>  A  &lt;An Assumption of the defender’s claim, e.g. about a mitigation that already exists or that will be implemented.&gt;
-      </ul>
-   <li>  (sword) &lt;Renewed claim of the attacker that bypasses the defender’s argument&gt;
-      <ul>
-      <li>  A &lt;An assumption of this renewed claim&gt;
-      </ul>
-   <li>  Etc.
-   </ul>
-  <li>  R2: etc.
-  </ul>
-<li>  Category: etc.
-</ul>
-<p>Defender’s arguments can refer to components or architectural decisions that reduce a risk, and to decisions to transfer some risk to a third party (e.g. to an insurance company or to a customer).<br>
-If a risk  ends with all attacker’s claims partly or completely defeated, then all attack paths claimed by attackers in this argument have been partly or completely mitigated, or transferred to third parties. Risks that are undefeated, are accepted by the defender. <br>
-The tool allows the production of lists of mitigations per risk, and of risks per mitigation. It provides a memory of the reasons why mitigations have been introduced, and which risks have been considered for mitigation.</p>
-
-<h2>
-<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>USAGE:</h2>
-
-<p>Conducting an argument-based RA requires little preparation. Any number of stakeholders, domain experts and/or security experts can participate, but should be split up in two teams: Attackers and Defenders. The method assumes the participants posses pre-existing knowledge of the Target of Assessment. Ideally, but not mandatory, some sort of system model or diagram should be agreed upon by the participants. Each assessment follows the workflow below:</p>
-
-<ol>
-<li> Create New Risk and give it a name</li>
-<li> Create a New Risk under this Category, and provide a brief name/description of it</li>
-<li> Each Risk starts with an Attacker argument, describing an attack path or refining the Risk. Each argument consists of a Claim, supported by one or more assumptions. Use CTRL+SPACE to switch between Claims and Assumptions.</li>
-<li> Each Attacker argument may be countered by a Defender argument, describing a mitigation, reduction or transfer of the attack. 
-    <ul>
-    <li> After typing a defense, in case it describes a Risk Transfer, select it and press the "Transfer" button. </li>
-    <li> After typing a defense, in case it is already in place, select it and press the "Implemented" button. </li>
-    </ul>
-<li> This back-and-forth rhetoric can continue until: 
-<ul>
-<li> The Attacker team is unable or unwilling to counter the last Defender argument. This means the Risk has been mitigated sufficiently for this Attacker. </li>
-<li> The Defender team is unable or unwilling to counter the last Attacker argument. This means the (residual) Risk has been accepted.</li>
-</ul>
-</li>
-<li> 	If other Risks can be identified under this Category, go back to step 2 and create a new Risk.</li>
-<li> If a new Risk Category can be identified, go back to step 1. </li>
-</ol>
-
-<h3>
-<a id="color-codes" class="anchor" href="#color-codes" aria-hidden="true"><span class="octicon octicon-link"></span></a> Color codes:</h3>
-<ul>
-<li>BLACK:  the color of all elements except Claims</li>
-<li> GREEN/RED: only applies to Claims.  Claims start out as green and turn red once defeated. Then, turn green again once their counter-arguments has bee defeated and so on.</li></h4>
-</ul>
-<h3>
-
-<a id="tips--tricks" class="anchor" href="#tips--tricks" aria-hidden="true"><span class="octicon octicon-link"></span></a>Tips &amp; Tricks:</h3>
+<p>ArgueSecure is a set argumentation-based risk assessment tools aimed at documenting the rationale behind attacks identified and countermeasures selected as part of an informal, qualitative risk assessment:</p>
 
 <ul>
-<li>When to start a New Risk:
-
-<ul>
-<li>As soon as a new attack vector is identified (even if this attack vector untuitively corresponds to the same Risk and/or compromises the same asset), it is recommended to specify it as part of a New Risk to prevent long rounds.</li>
-</ul>
-</li>
-<li>Contents of Attacker arguments:
-
-<ul>
-<li>Claims are attacks that are possible. </li>
-<li>If everybody agrees, no assumptions are needed. If anyone believes it’s impossible, he has to explain why (in which circumstances). </li>
-<li>The negations of these reasons are assumptions.</li>
-</ul>
-</li>
-<li>Contents of Defender arguments: 
-
-<ul>
-<li>Claims are (parts of) attacks which are impossible. </li>
-<li>If everybody agrees, no assumptions are needed. If anyone believes it’s still possible, he has to explain why (in which circumstances).<br>
-</li>
-<li>The negations of these reasons are assumptions.</li>
-</ul>
-</li>
+<li>
+<a href="https://surfdrive.surf.nl/files/index.php/s/lltTF8Vms588amz">A lightweight Excel-based version</a>.</li>
+<li>
+<a href="https://github.com/danionita/ArgueSecure">A Java version</a> which is intended to be used during dedicated security requirements elicitation sessions. It is designed to be usable with a projector.</li>
+<li>
+<a href="https://github.com/hitandyrun/arguesecure-online">An online version</a> which in addition allows stakeholders and experts to engage in a risk assessmentin real-time without being in the same room and even without being available the same time.</li>
 </ul>
 
-<h2>
-<a id="development-plan" class="anchor" href="#development-plan" aria-hidden="true"><span class="octicon octicon-link"></span></a>DEVELOPMENT PLAN</h2>
-
-<p>This is a first version, still missing some functionality. In the near future, we plan to add:</p>
-
-<ul>
-<li>extended keyword/search  functionality aimed at searching for and highlighting arguments that pertain to the same components/assets.</li>
-<li>various report generation options, such as a Risk Map, a list of Countermeasures to be implemented and a list of important components.</li>
-</ul>
-
-<blockquote>
-<p>Based on <a href="http://eprints.eemcs.utwente.nl/25041/01/Argumentations-support_for_Security_Requirements.pdf">research in Argumentation-based Risk Assessment by Ionita et al.</p>
-</blockquote>
+<p>The ArgueSecure tools are based on research into argumentation-based risk Assessment tool based on previous research by Ionita et al: <a href="http://eprints.eemcs.utwente.nl/25041/01/Argumentations-support_for_Security_Requirements.pdf">http://eprints.eemcs.utwente.nl/25041/01/Argumentations-support_for_Security_Requirements.pdf</a></p>
       </section>
     </div>
     <footer>
-      <p>Project maintained by <a href="https://github.com/danionita">Dan Ionita</a></p> & <a href="https://github.com/varnos">Roeland Kegel</a></p>.
+      <p>Project maintained by <a href="https://github.com/danionita">danionita</a></p>
       <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
     </footer>
     <!--[if !IE]><script>fixScale(document);</script><![endif]-->
