@@ -1,3 +1,5 @@
+This is the repository for ArgueSecure-offline (desktop version). For the web-based version: https://github.com/hitandyrun/arguesecure-online
+
 # ArgueSecure
 
 ArgueSecure allows you to build and maintain a list of risks with the following structure
